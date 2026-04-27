@@ -1,6 +1,5 @@
-DROP DATABASE IF EXISTS cleaner;
-CREATE DATABASE cleaner CHARACTER SET utf8mb4;
-USE cleaner;
+CREATE DATABASE cleaner_1 CHARACTER SET utf8mb4;
+USE cleaner_1;
 
 CREATE TABLE oficina (
   codigo_oficina VARCHAR(10) NOT NULL,
@@ -938,8 +937,7 @@ SELECT codigo_empleado, nombre, apellido1, apellido2,
 extension, email, codigo_oficina, codigo_jefe
 puesto FROM EMPLEADO;
 
-/* RETO A - Retorna un listado con el código de oficina y
-la ciudad donde hay oficinas */
+/* RETO A - Retorna un listado con el código de oficina y la ciudad donde hay oficinas */
 show tables;
 describe oficina;
 select codigo_oficina , ciudad, pais, region, codigo_postal, telefono, linea_direccion1, linea_direccion2 from oficina;
@@ -950,98 +948,109 @@ select o.codigo_oficina as cod_oficina, o.ciudad country,
 concat(o.codigo_oficina,' - ', o.ciudad) as cod_ciudad_oficina
  from oficina o;
  
- /* RETO C - Retorna un listado con la ciudad y
- el telefono de las oficinas en España. */
+ /* RETO B - Retorna un listado con la ciudad y el telefono de las oficinas en España. */
  
 show tables;
 describe oficina;
 select codigo_oficina, ciudad, pais, region, codigo_postal, telefono, linea_direccion1, linea_direccion2 from oficina;
 select ciudad, telefono from oficina where pais = 'España';
  
- /* RETO D - Retorna el listado con todos los clientes que sean
- de la ciudad de Madrid y cuyo representante de ventas tenga
- el código de empleado 11 ó 30. */
+ /*C. Nombre, apellidos y email de los empleados cuyo jefe tiene código 7*/
  
- describe cliente;
- describe empleado;
+ show tables;
+describe empleado;
+select codigo_empleado, nombre, apellido1, apellido2, extension, email, codigo_oficina, codigo_jefe, puesto from empleado;
+select nombre, apellido1, apellido2, email from empleado where codigo_jefe = 7;
  
- select count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl
- join empleado em
- on em.codigo_empleado = cl.codigo_empleado_rep_ventas
- where upper(cl.ciudad) = 'MADRID'
- and (em.codigo_empleado = 11
- OR em.codigo_empleado = 30);
- 
-  select count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl
- join empleado em
- on em.codigo_empleado = cl.codigo_empleado_rep_ventas
- where upper(cl.ciudad) = 'MADRID'
- and em.codigo_empleado in (11,30);
- 
-select count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl,  empleado em
- where em.codigo_empleado = cl.codigo_empleado_rep_ventas
- and upper(cl.ciudad) = 'MADRID'
- and em.codigo_empleado in (11,30);
- 
- select em.codigo_empleado, count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl,  empleado em
- where em.codigo_empleado = cl.codigo_empleado_rep_ventas
- and upper(cl.ciudad) = 'MADRID'
- and em.codigo_empleado in (11,30)
- group by em.codigo_empleado;
-
- select cl.ciudad, count(*) total_registros /*cl.ciudad, em.codigo_empleado */
- from cliente cl,  empleado em
- where em.codigo_empleado = cl.codigo_empleado_rep_ventas
- and em.codigo_empleado in (11,30)
- group by cl.ciudad
- order by cl.ciudad desc;
- 
- 
- /*C.Puesto, nombre, apellidos y email del jefe de la empresa*/
+ /*D. Puesto, nombre, apellidos y email del jefe de la empresa*/
  show tables;
 describe empleado;
 select codigo_empleado, nombre, apellido1, apellido2, extension, email, codigo_oficina, codigo_jefe, puesto from empleado;
 select puesto, nombre, apellido1, apellido2, email from empleado where codigo_jefe IS NULL;
  
- /*E.Nombre, apellidos y puesto de empleados que no sean representantes de ventas*/
+ /*C. Nombre, apellidos y puesto de empleados que no sean representantes de ventas*/
  
  show tables;
 describe empleado;
 select codigo_empleado, nombre, apellido1, apellido2, extension, email, codigo_oficina, codigo_jefe, puesto from empleado;
 select nombre, apellido1, apellido2, puesto from empleado where puesto <> 'Representante Ventas';
 
-/*F.Listado con los nombres de todos los clientes españoles*/
+/*E. Listado con los nombres de todos los clientes españoles*/
 
 show tables;
 describe cliente;
 select codigo_cliente, nombre_cliente, nombre_contacto, apellido_contacto, telefono, fax, linea_direccion1, linea_direccion2, ciudad, region, pais, codigo_postal, codigo_empleado_rep_ventas, limite_credito from cliente;
 select nombre_cliente from cliente where pais = 'Spain';
 
-/*H. Clientes que realizaron algún pago en 2008 (Sin duplicados)
-Utilizando la funcion YEAR()*/
+/*F. Distintos estados por los que puede pasar un pedido*/
+
+show tables;
+describe pedido;
+select codigo_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, codigo_cliente from pedido;
+select DISTINCT estado from pedido;
+
+
+/*G. Clientes que realizaron algún pago en 2008 (Sin duplicados)
+Utilizando la función YEAR()*/
 
 show tables;
 describe pago;
 select codigo_cliente, forma_pago, id_transaccion, fecha_pago, total from pago;
 select DISTINCT codigo_cliente from pago where YEAR(fecha_pago) = 2008;
 
+/*H. Pedidos que no han sido entregados a tiempo*/
 
-/*J. Pedidos cuya entrega ha sido al menos dos días antes de la fecha esperada
-Utilizando la función DATEDIFF()*/
+show tables;
+describe pedido;
+select codigo_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, codigo_cliente from pedido;
+select codigo_pedido, codigo_cliente, fecha_esperada, fecha_entrega from pedido where fecha_entrega > fecha_esperada;
+
+/*I. Pedidos cuya entrega ha sido al menos dos días antes de la fecha esperada Utilizando la función DATEDIFF():*/
 
 show tables;
 describe pedido;
 select codigo_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, codigo_cliente from pedido;
 select codigo_pedido, codigo_cliente, fecha_esperada, fecha_entrega from pedido where DATEDIFF(fecha_esperada, fecha_entrega) >= 2;
 
-/*K. Pedidos rechazados en 2009*/
+/*J. Pedidos rechazados en 2009*/
 
 show tables;
 describe pedido;
 select codigo_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, codigo_cliente from pedido;
 select codigo_pedido, fecha_pedido, estado from pedido where estado = 'Rechazado' AND YEAR(fecha_pedido) = 2009;
 
+
+/*K. Pedidos entregados en el mes de enero de cualquier año*/
+
+show tables;
+describe pedido;
+select codigo_pedido, fecha_pedido, fecha_esperada, fecha_entrega, estado, comentarios, codigo_cliente from pedido;
+select codigo_pedido, fecha_entrega from pedido where MONTH(fecha_entrega) = 1;
+
+/*L. Pagos realizados en 2008 mediante Paypal*/
+
+show tables;
+describe pago;
+select codigo_cliente, forma_pago, id_transaccion, fecha_pago, total from pago;
+select codigo_cliente, forma_pago, fecha_pago, total from pago where YEAR(fecha_pago) = 2008 AND forma_pago = 'Paypal' ORDER BY total DESC;
+
+/*M. Formas de pago únicas en la tabla pago*/
+
+show tables;
+describe pago;
+select codigo_cliente, forma_pago, id_transaccion, fecha_pago, total from pago;
+select DISTINCT forma_pago from pago;
+
+/*N. Productos de la gama "Ornamentales" con más de 100 unidades en stock*/
+
+show tables;
+describe producto;
+select codigo_producto, nombre, gama, dimensiones, proveedor, descripcion, cantidad_en_stock, precio_venta, precio_proveedor from producto;
+select nombre, gama, cantidad_en_stock, precio_venta from producto where gama = 'Ornamentales' AND cantidad_en_stock > 100 ORDER BY precio_venta DESC;
+
+/*O. Clientes de Madrid cuyo representante de ventas tenga el código 11 o 30*/
+
+show tables;
+describe cliente;
+select codigo_cliente, nombre_cliente, nombre_contacto, apellido_contacto, telefono, fax, linea_direccion1, linea_direccion2, ciudad, region, pais, codigo_postal, codigo_empleado_rep_ventas, limite_credito from cliente;
+select nombre_cliente, ciudad, codigo_empleado_rep_ventas from cliente where ciudad = 'Madrid' AND codigo_empleado_rep_ventas IN (11, 30);
